@@ -10,13 +10,15 @@ CSnake::~CSnake()
 {
 }
 
-void CSnake::InitSnake(int x, int y)
+void CSnake::InitSnake(HWND hWnd, int x, int y, DirectionFlag dFlag)
 {
+	m_hWnd = hWnd;
+
 	m_front = new SnakeNode;//申请空间
 	m_back = new SnakeNode;
 	
-	m_front->dFlag = right;//设置方向状态
-	m_front->dFlag = right;
+	m_front->dFlag = dFlag;//设置方向状态
+	m_front->dFlag = dFlag;
 
 	m_front->pos_x = x;//设置位置
 	m_front->pos_y = y;
@@ -31,6 +33,8 @@ void CSnake::InitSnake(int x, int y)
 
 void CSnake::Move(DirectionFlag dFlag)
 {
+	m_back_last = *m_back;//保存移动前的信息用于新增结点
+
 	SnakeNode* save;
 
 	//将尾结点移动到头结点前，成为新的头结点
@@ -42,19 +46,17 @@ void CSnake::Move(DirectionFlag dFlag)
 	save->next = m_front;				//旧的尾结点指向旧的头结点
 	m_front->last = save;				//旧的头结点的前一个结点指针的为旧的尾结点
 	save->last = NULL;					//旧的尾结点的前一个结点置空
-	switch (dFlag)//根据形参dFlag设置旧的尾结点的dFlag和坐标,不能为相反的方向，否则方向不变
+	switch (m_front->dFlag)//根据形参dFlag设置旧的尾结点的dFlag和坐标,不能为相反的方向，否则方向不变
 	{
 	case up:
-	case leftUp:
-	case rightUp:
-		if (m_front->dFlag != down)
+		if (dFlag != down)
 		{
 			save->dFlag = dFlag;		//设置新的方向标志
 			switch (dFlag)				//设置新的坐标
 			{
 			case up:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y + 1;
+				save->pos_y = m_front->pos_y - 1;
 				break;
 			case left:
 				save->pos_x = m_front->pos_x - 1;
@@ -68,22 +70,20 @@ void CSnake::Move(DirectionFlag dFlag)
 		}
 		else
 		{
-			save->dFlag = up;			//设置新的方向标志
+			save->dFlag = m_front->dFlag;//保持原有状态
 			save->pos_x = m_front->pos_x;
-			save->pos_y = m_front->pos_y + 1;//继续向上
+			save->pos_y = m_front->pos_y - 1;//继续向上
 		}
 		break;
 	case down:
-	case leftDown:
-	case rightDown:
-		if (m_front->dFlag != up)
+		if (dFlag != up)
 		{
 			save->dFlag = dFlag;		//设置新的方向标志
 			switch (dFlag)				//设置新的坐标
 			{
 			case down:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y - 1;
+				save->pos_y = m_front->pos_y + 1;
 				break;
 			case left:
 				save->pos_x = m_front->pos_x - 1;
@@ -97,26 +97,24 @@ void CSnake::Move(DirectionFlag dFlag)
 		}
 		else
 		{
-			save->dFlag = down;			//设置新的方向标志
+			save->dFlag = m_front->dFlag;//保持原有状态
 			save->pos_x = m_front->pos_x;//继续向下
-			save->pos_y = m_front->pos_y - 1;
+			save->pos_y = m_front->pos_y + 1;
 		}
 		break;
 	case left: 
-	case upLeft:
-	case downLeft:
-		if (m_front->dFlag != right)
+		if (dFlag != right)
 		{
 			save->dFlag = dFlag;		//设置新的方向标志
 			switch (dFlag)				//设置新的坐标
 			{
 			case up:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y + 1;
+				save->pos_y = m_front->pos_y - 1;
 				break;
 			case down:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y - 1;
+				save->pos_y = m_front->pos_y + 1;
 				break;
 			case left:
 				save->pos_x = m_front->pos_x - 1;
@@ -126,26 +124,24 @@ void CSnake::Move(DirectionFlag dFlag)
 		}
 		else
 		{
-			save->dFlag = left;			//设置新的方向标志
+			save->dFlag = m_front->dFlag;//保持原有状态
 			save->pos_x = m_front->pos_x - 1;//继续向左
 			save->pos_y = m_front->pos_y;
 		}
 		break;
 	case right:
-	case upRight:
-	case downRight:
-		if (m_front->dFlag != left)
+		if (dFlag != left)
 		{
 			save->dFlag = dFlag;		//设置新的方向标志
 			switch (dFlag)				//设置新的坐标
 			{
 			case up:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y + 1;
+				save->pos_y = m_front->pos_y - 1;
 				break;
 			case down:
 				save->pos_x = m_front->pos_x;
-				save->pos_y = m_front->pos_y - 1;
+				save->pos_y = m_front->pos_y + 1;
 				break;
 			case right:
 				save->pos_x = m_front->pos_x + 1;
@@ -155,11 +151,22 @@ void CSnake::Move(DirectionFlag dFlag)
 		}
 		else
 		{
-			save->dFlag = right;		//设置新的方向标志
+			save->dFlag = m_front->dFlag;//保持原有状态
 			save->pos_x = m_front->pos_x + 1;//继续向右
 			save->pos_y = m_front->pos_y;
 		}
 		break;
 	}
 	m_front = save;//将旧的尾结点设置为新的头结点
+	
+}
+
+void CSnake::Add(void)
+{
+	SnakeNode* new_back = new SnakeNode(m_back_last);
+	new_back->last = m_back;//连接新增结点
+	m_back->next = new_back;
+	new_back->next = NULL;
+
+	m_back = new_back;//新结点设置为尾结点
 }

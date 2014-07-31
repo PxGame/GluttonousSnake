@@ -1,9 +1,16 @@
 # define _CRT_SECURE_NO_WARNINGS
 # pragma once
 # include <Windows.h>
+# include <time.h>
 # include "Snake.h"
 
-# define  CELLSIZE 20//20*20像素的方格，必须被main.cpp中的CLIENT_WITDH和CLIENT_HEIGHT整除
+extern int m_cellSize;//声明外部变量，在main.h文件中
+
+enum DesktopStatus{
+	nothing,
+	snake,
+	food
+};
 
 class CDesktop
 {
@@ -33,7 +40,9 @@ public:
 
 public :
 	void InitDesktop(HINSTANCE hInstance, HWND hWnd, CSnake* snake);
-	void DrawDesktop(void);
-	void DrawSnake(void);
+	BOOL DrawDesktop(void);
+	void AddFood(void);
+
+public :
 };
 
