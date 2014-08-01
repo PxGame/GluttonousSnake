@@ -65,7 +65,7 @@ BOOL CDesktop::DrawDesktop(void)
 		MoveToEx(m_hDC, 0, i*m_cellSize, NULL);
 		LineTo(m_hDC, m_array_x*m_cellSize, i*m_cellSize);
 	}
-
+	DeleteObject(m_hBrush);//É¾³ý»­Ë¢
 
 	///////////////////////////////////Ìí¼ÓÉß//////////////////////////////////////////
 	for (int i = 0; i < m_array_x; i++)//Çå³ýÔ­ÓÐsnakeµÄ×´Ì¬
@@ -121,6 +121,7 @@ BOOL CDesktop::DrawDesktop(void)
 				SetRect(&rt_food, i * m_cellSize, j * m_cellSize,
 					i * m_cellSize + m_cellSize, j * m_cellSize + m_cellSize);
 				FillRect(m_hDC, &rt_food, m_hBrush);
+				DeleteObject(m_hBrush);//É¾³ý»­Ë¢
 			}
 			if (m_desk[i][j] == snake)//»­Éß
 			{
@@ -129,10 +130,10 @@ BOOL CDesktop::DrawDesktop(void)
 				SetRect(&rt_snake, i * m_cellSize, j * m_cellSize,
 					i * m_cellSize + m_cellSize, j * m_cellSize + m_cellSize);
 				FillRect(m_hDC, &rt_snake, m_hBrush);
+				DeleteObject(m_hBrush);//É¾³ý»­Ë¢
 			}
 		}
 	}
-	DeleteObject(m_hBrush);//É¾³ý»­Ë¢
 
 	return TRUE;
 }
